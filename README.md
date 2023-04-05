@@ -9,10 +9,8 @@ project to understand decoding
 ### Tested microcontrollers
 
 * Arduino Nano
-* Arduino Pro Mini
 * ESP32 (ESP32-WROOM-32 / ESP32-WROOM-32D)
 * ESP8266
-* RadinoCC1101
 
 
 ### You found a bug
