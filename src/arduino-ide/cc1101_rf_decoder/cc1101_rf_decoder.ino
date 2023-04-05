@@ -85,6 +85,13 @@ byte PatMAX = 0;                // Marker - maximale Pattern erreicht und neuer 
 char input[50];                 // input from Serial/telnet
 int count;                      // count bytes input from Serial/telnet
 
+/* predefinitions of the functions */
+inline void doDetect();
+void MSGBuild();
+void PatReset();
+void decode(const int pulse);
+void findpatt(int val);
+
 /* alle definierten pin´s der Boards */
 #ifdef ARDUINO_ARCH_ESP32         /* ESP32 */
 #define PIN_RECEIVE   13            // D13 | G13
