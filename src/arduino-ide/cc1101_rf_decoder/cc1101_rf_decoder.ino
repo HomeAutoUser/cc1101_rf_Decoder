@@ -41,7 +41,7 @@
 
 #include <Arduino.h>
 #include "SimpleFIFO.h"
-#include <digitalWriteFast.h> // https://github.com/ArminJo/digitalWriteFast
+#include <digitalWriteFast.h>       // https://github.com/ArminJo/digitalWriteFast
 
 #ifdef CC110x
 #include <SPI.h>
@@ -55,7 +55,7 @@
 #define PatMaxCnt         8         // Pattern, maximale Anzahl (Anzahl 8 -> FHEM SIGNALduino kompatibel)
 #define PatTol            0.20      // Patterntoleranz
 
-#define FIFO_LENGTH           160   // 90 von SIGNALduino FW
+#define FIFO_LENGTH       160       // 90 von SIGNALduino FW
 SimpleFIFO<int, FIFO_LENGTH> FiFo;  // store FIFO_LENGTH # ints
 
 const char compile_date[]       = __DATE__ " " __TIME__;
@@ -104,7 +104,7 @@ void findpatt(int val);
 #define LED           16            // LED => ESP8266 (OK msg & WIFI)
 #define SerialSpeed   57600
 //#define SerialSpeed   115200
-//#define SerialSpeed 921600
+//#define SerialSpeed   921600
 #include <ESP8266WiFi.h>          /* ESP8266 | need for ESP8266 function system_get_free_heap_size (include failed, so separate) */
 #elif ARDUINO_RADINOCC1101        /* radinoCC1101 */
 #define PIN_RECEIVE   7             // GDO2     => Radino (Pin RX in)
@@ -139,7 +139,6 @@ void Interupt() {
       sDuration = t_maxP;           // Maximalwert
     }
     if (digitalReadFast(PIN_RECEIVE)) { // Wenn jetzt high ist, dann muss vorher low gewesen sein, und dafuer gilt die gemessene Dauer.
-      // if (digitalRead(PIN_RECEIVE)) { // Wenn jetzt high ist, dann muss vorher low gewesen sein, und dafuer gilt die gemessene Dauer.
       sDuration = -sDuration;
     }
     FiFo.enqueue(sDuration);        // add an sDuration
@@ -148,8 +147,6 @@ void Interupt() {
 
 
 void setup() {
-  //Der Sketch verwendet 8174 Bytes (26%) des Programmspeicherplatzes. Das Maximum sind 30720 Bytes.
-  //Globale Variablen verwenden 742 Bytes (36%) des dynamischen Speichers, 1306 Bytes für lokale Variablen verbleiben. Das Maximum sind 2048 Bytes.
   MsgData.reserve(255); // neu
   Serial.begin(SerialSpeed);
   Serial.println(F("Serial, OK"));
@@ -180,7 +177,7 @@ void setup() {
 #endif
     CC1101_cmdStrobe(0x3A);             // Flush the RX FIFO buffer. Only issue SFRX in IDLE or RXFIFO_OVERFLOW states
     CC1101_cmdStrobe(0x34);             // Enable RX. Perform calibration first if coming from IDLE and MCSM0.FS_AUTOCAL=1
-#endif // Ende ifdef CC110x
+#endif // ENDE ifdef CC110x
     delay(125);
     pinMode(PIN_RECEIVE, INPUT_PULLUP);   /* Lege den Interruptpin als Inputpin mit Pullupwiderstand fest */
     attachInterrupt(digitalPinToInterrupt(PIN_RECEIVE), Interupt, CHANGE); /* "Bei wechselnder Flanke auf dem Interruptpin" --> "Führe die Interupt Routine aus" */
@@ -275,9 +272,9 @@ void decode(const int pulse) {    /* Pulsübernahme und Weitergabe */
 }
 
 inline void doDetect() {      /* Pulsprüfung und Weitergabe an Patternprüfung */
-  valid = (MsgLen == 0 || last == 0 || (first ^ last) < 0);  // true if a and b have opposite signs
+  valid = (MsgLen == 0 || last == 0 || (first ^ last) < 0);   // true if a and b have opposite signs
   valid &= (MsgLen == MsgLenMax) ? false : true;
-  valid &= ( (first > -t_maxP) && (first < t_maxP) );           // if low maxPulse detected, start processMessage()
+  valid &= ( (first > -t_maxP) && (first < t_maxP) );         // if low maxPulse detected, start processMessage()
 #ifdef DEBUG
   Serial.print(F("PC:")); Serial.print(PatNmb); Serial.print(F(" ML:")); Serial.print(MsgLen); Serial.print(F(" v:")); Serial.print(valid);
   Serial.print(F(" | ")); Serial.print(first); Serial.print(F("    ")); Serial.println(last);
@@ -336,11 +333,9 @@ void MSGBuild() {     /* Nachrichtenausgabe */
   PatReset();
 }
 
-
 void findpatt(int val) {      /* Patterneinsortierung */
   for (uint8_t i = 0; i < PatMaxCnt; i++) {
-    /* nach RESET */
-    if (MsgLen == 0) {
+    if (MsgLen == 0) {  /* ### nach RESET ### */
       MsgData = i;
       ArPaCnt[i] = 1;
       ArPaT[i] = val;
@@ -351,7 +346,7 @@ void findpatt(int val) {      /* Patterneinsortierung */
       Serial.print(F(" l: ")); Serial.print(last); Serial.print(F(" PatN: ")); Serial.print(PatNmb); Serial.print(F(" msgL: ")); Serial.print(MsgLen); Serial.print(F(" Fc: ")); Serial.println(FiFo.count());
 #endif
       break;
-      /* in Tolleranz und gefunden */
+      /* ### in Tolleranz und gefunden ### */
     } else if ( (val > 0 && val > ArPaT[i] * (1 - PatTol) && val < ArPaT[i] * (1 + PatTol)) ||
                 (val < 0 && val < ArPaT[i] * (1 - PatTol) && val > ArPaT[i] * (1 + PatTol)) ) {
       MsgData += i;
@@ -363,8 +358,7 @@ void findpatt(int val) {      /* Patterneinsortierung */
       Serial.print(F(" l: ")); Serial.print(last); Serial.print(F(" PatN: ")); Serial.print(PatNmb); Serial.print(F(" msgL: ")); Serial.print(MsgLen); Serial.print(F(" Fc: ")); Serial.println(FiFo.count());
 #endif
       break;
-      /* nächste freie Pattern */
-    } else if (i < (PatMaxCnt - 1) && ArPaT[i + 1] == 0 ) {
+    } else if (i < (PatMaxCnt - 1) && ArPaT[i + 1] == 0 ) { /* ### nächste freie Pattern ### */
       MsgData += i + 1;
       PatNmb++;
       ArPaCnt[i + 1]++;
@@ -376,8 +370,7 @@ void findpatt(int val) {      /* Patterneinsortierung */
       Serial.print(F(" l: ")); Serial.print(last); Serial.print(F(" PatN: ")); Serial.print(PatNmb); Serial.print(F(" msgL: ")); Serial.print(MsgLen); Serial.print(F(" Fc: ")); Serial.println(FiFo.count());
 #endif
       break;
-      /* Anzahl vor defineirter Pattern ist erreicht */
-    } else if (i == (PatMaxCnt - 1)) {
+    } else if (i == (PatMaxCnt - 1)) {  /* ### Anzahl vor definierter Pattern ist erreicht ### */
 #ifdef DEBUG
       Serial.print(F("PC max! | MsgLen: ")); Serial.print(MsgLen); Serial.print(F(" | MsgLenMin: ")); Serial.println(MsgLenMin);
 #endif
@@ -387,7 +380,6 @@ void findpatt(int val) {      /* Patterneinsortierung */
     }
   }
 }
-
 
 void PatReset() {     /* Zurücksetzen nach Nachrichtenbau oder max. Länge */
   MsgData = "";
