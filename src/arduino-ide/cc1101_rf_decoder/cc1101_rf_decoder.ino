@@ -37,8 +37,12 @@
   https://forum.arduino.cc/t/how-exactly-slow-is-digitalread/325458/3
 */
 
-#define CC110x // ohne CC110x auskommentieren
+/* Definitions for program code */
+#define CC110x                    // ohne CC110x auskommentieren
+//#define DEBUG           1         // zum aktivieren der Debugausgaben
+//#define ReceiveMhz868   1         // Empfang auf 868, sonst 433 Mhz
 
+/* Definitions END */
 #include <Arduino.h>
 #include "SimpleFIFO.h"
 #include <digitalWriteFast.h>       // https://github.com/ArminJo/digitalWriteFast
@@ -48,8 +52,6 @@
 #include "cc110x.h"
 #endif
 
-//#define DEBUG           1         // zum aktivieren der Debugausgaben
-//#define ReceiveMhz868   1         // Empfang auf 868, sonst 433 Mhz
 #define MsgLenMin         24        // Nachricht Mindestlänge
 #define MsgLenMax         254       // Nachricht Maximallänge
 #define PatMaxCnt         8         // Pattern, maximale Anzahl (Anzahl 8 -> FHEM SIGNALduino kompatibel)
@@ -60,9 +62,9 @@ SimpleFIFO<int, FIFO_LENGTH> FiFo;  // store FIFO_LENGTH # ints
 
 const char compile_date[]       = __DATE__ " " __TIME__;
 #ifdef CC110x
-static const char TXT_VERSION[] = "V 0.18 SIGNALduino compatible cc1101_rf_Decoder - compiled at ";
+static const char TXT_VERSION[] = "V 0.19 SIGNALduino compatible cc1101_rf_Decoder - compiled at ";
 #else
-static const char TXT_VERSION[] = "V 0.18 SIGNALduino compatible rf_Decoder - compiled at ";
+static const char TXT_VERSION[] = "V 0.19 SIGNALduino compatible rf_Decoder - compiled at ";
 #endif
 bool valid;
 
