@@ -1,4 +1,4 @@
-# cc1101_rf_decoder v0.18
+# cc1101_rf_decoder v0.19
 project to understand decoding
 
 ### Using cc1101_rf_decoder in FHEM
