@@ -38,7 +38,7 @@
 */
 
 /* Definitions for program code */
-#define CC110x                    // ohne CC110x auskommentieren
+//#define CC110x                    // ohne CC110x auskommentieren
 //#define DEBUG           1         // zum aktivieren der Debugausgaben
 //#define ReceiveMhz868   1         // Empfang auf 868, sonst 433 Mhz
 
@@ -160,13 +160,13 @@ void setup() {
   delay(50);
   SPI.begin();
   SPI.beginTransaction(SPISettings(4000000, MSBFIRST, SPI_MODE0));  // SCLK frequency, burst access max. 6,5 MHz
-  digitalWrite(SS, HIGH);               // Deselect (SPI) CC1101
+  digitalWriteFast(SS, HIGH);               // Deselect (SPI) CC1101
   delayMicroseconds(10);
-  digitalWrite(SS, LOW);                // Select (SPI) CC1101
+  digitalWriteFast(SS, LOW);                // Select (SPI) CC1101
   delayMicroseconds(10);
-  digitalWrite(SS, HIGH);               // Deselect (SPI) CC1101
+  digitalWriteFast(SS, HIGH);               // Deselect (SPI) CC1101
   delayMicroseconds(40);
-  digitalWrite(SS, LOW);                // Select (SPI) CC1101
+  digitalWriteFast(SS, LOW);                // Select (SPI) CC1101
   while (digitalRead(MISO) > 0);        // Wait until SPI MISO line goes low
   CC1101_cmdStrobe(0x30);               // Reset CC1101 chip
   delay(125);
@@ -181,7 +181,10 @@ void setup() {
     CC1101_cmdStrobe(0x34);             // Enable RX. Perform calibration first if coming from IDLE and MCSM0.FS_AUTOCAL=1
 #endif // ENDE ifdef CC110x
     delay(125);
-    pinMode(PIN_RECEIVE, INPUT_PULLUP);   /* Lege den Interruptpin als Inputpin mit Pullupwiderstand fest */
+
+    pinMode(PIN_RECEIVE, INPUT);
+    pinMode(PIN_SEND, OUTPUT);
+    digitalWriteFast(PIN_SEND, LOW);
     attachInterrupt(digitalPinToInterrupt(PIN_RECEIVE), Interupt, CHANGE); /* "Bei wechselnder Flanke auf dem Interruptpin" --> "Führe die Interupt Routine aus" */
 #ifdef CC110x
     Serial.println(F("CC110x OK, Interrupt OK"));
